@@ -3,3 +3,4 @@ requests
 branca
 lxml
 GitPython
+textract
