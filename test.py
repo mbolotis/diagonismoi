@@ -39,11 +39,11 @@ def send_email(subject, body, to_email, smtp_server, smtp_port, sender_email, se
 # Example usage with multiple attachments from a folder:
 subject = "Test Email with Multiple Attachments"
 body = "This is a test email with multiple attachments sent"
-to_email = "michael-94@windowslive.com"
+to_email = ""
 smtp_server = "smtp.office365.com"  # Outlook SMTP server
 smtp_port = 587  # Port for TLS
-sender_email = "michael-94@windowslive.com"
-sender_password = "19941994"
+sender_email = ""
+sender_password = ""
 attachment_folder = os.path.join(os.getcwd(), 'diavgeia_files', 'ledison', '20240221')
 
 send_email(subject, body, to_email, smtp_server, smtp_port, sender_email, sender_password, attachment_folder)
