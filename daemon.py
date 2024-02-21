@@ -5,64 +5,150 @@ import os
 import pickle
 import branca
 import lxml
-from urllib.parse import quote
-from datetime import date
+import urllib.parse
+from datetime import date, timedelta
 import textract
+import re
+import smtplib, ssl
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from email.mime.application import MIMEApplication
 
-'''
-decoded_string = 'λαμπες'
-encoded_string = quote(decoded_string)
-start_date = date.today()
-suffix = 'T00:00:00'
-print(str(start_date)+suffix)
-'''
-'''
-start_date = '2024-01-21T00:00:00'
-end_date = '2024-02-19T23:59:59'
-keyword = 'λαμπες'
-#url = 'https://diavgeia.gov.gr/search?advanced&query=q:%22%CE%BB%CE%B1%CE%BC%CF%80%CE%B5%CF%82%22&page=0&fq=decisionType:%22%CE%A0%CE%95%CE%A1%CE%99%CE%9B%CE%97%CE%A8%CE%97%20%CE%94%CE%99%CE%91%CE%9A%CE%97%CE%A1%CE%A5%CE%9E%CE%97%CE%A3%22&fq=issueDate:%5BDT(2024-01-21T00:00:00)%20TO%20DT(2024-02-19T23:59:59)%5D'
-#response = requests.get(url)
-file_url = 'https://diavgeia.gov.gr/doc/ΨΟ854690ΒΠ-ΟΨ8'
-response = requests.get(file_url)
-print(response)
 
-if response.status_code == 200:
-    with open("test_1.pdf", "wb") as pdf_file:
-        pdf_file.write(response.content)
-    print("File downloaded successfully.")
-else:
-    print(f"Failed to download the file. Status code: {response.status_code}")
+def add_company(companies, name, keywords,email, cpv):
+    max_id = max((company.get('id', 0) for company in companies), default=0)
 
-# html_text = requests.get(url).text
-'''
+    new_id = max_id + 1
 
-json_url = 'https://diavgeia.gov.gr/luminapi/api/search/export?q=q:[%22%CE%BB%CE%B1%CE%BC%CF%80%CE%B5%CF%82%22]&fq=decisionType:%22%CE%A0%CE%95%CE%A1%CE%99%CE%9B%CE%97%CE%A8%CE%97%20%CE%94%CE%99%CE%91%CE%9A%CE%97%CE%A1%CE%A5%CE%9E%CE%97%CE%A3%22&fq=issueDate:[DT(2024-01-21T00:00:00)%20TO%20DT(2024-02-19T23:59:59)]&sort=recent&wt=json'
+    new_company = {
+        "id": new_id,
+        "name": name,
+        "keywords": keywords,
+        "email": email,
+        "cpv": cpv
+    }
 
-file_path = requests.get(json_url).text
-response = requests.get(json_url)
+    # Add the new company to the list
+    companies.append(new_company)
 
-# Check if the request was successful (status code 200)
-if response.status_code == 200:
-    # Load the JSON content into a list of dictionaries
-    data_list = [json.loads(line) for line in response.text.strip().split('\n')]
 
-    # Extract multiple fields from each record in data_list
-    field_values = [
-        {
-            'ada': result.get('ada', 'N/A'),
-            'protocolNumber': result.get('protocolNumber', 'N/A'),
-            'issueDate': result.get('issueDate', 'N/A'),
-            'submissionTimestamp': result.get('submissionTimestamp', 'N/A'),
-            'documentUrl': result.get('documentUrl', 'N/A'),
-            'subject': result.get('subject', 'N/A'),
-            'decisionTypeUid': result.get('decisionTypeUid', 'N/A'),
-            'decisionTypeLabel': result.get('decisionTypeLabel', 'N/A'),
-            'organizationUid': result.get('organizationUid', 'N/A'),
-            'organizationLabel': result.get('organizationLabel', 'N/A'),
-        }
-        for record in data_list
-        for result in record.get('decisionResultList', [])
-    ]
+def delete_company(companies, company_id):
+    # Find the index of the company with the specified ID
+    index_to_remove = None
+    for i, company in enumerate(companies):
+        if company.get('id') == company_id:
+            index_to_remove = i
+            break
 
-else:
-    print(f"Failed to fetch data. Status code: {response.status_code}")
+    # Remove the company if found
+    if index_to_remove is not None:
+        del companies[index_to_remove]
+
+def send_email(subject, body, to_email, smtp_server, smtp_port, sender_email, sender_password, attachment_folder):
+    # Create the email message
+    message = MIMEMultipart()
+    message["From"] = sender_email
+    message["To"] = to_email
+    message["Subject"] = subject
+
+    # Attach the body of the email
+    message.attach(MIMEText(body, "plain"))
+
+    # Attach all PDF files in the folder
+    for filename in os.listdir(attachment_folder):
+        if filename.endswith(".pdf"):
+            attachment_path = os.path.join(attachment_folder, filename)
+            with open(attachment_path, "rb") as attachment_file:
+                attachment = MIMEApplication(attachment_file.read(), "pdf")
+                attachment.add_header("Content-Disposition", f"attachment; filename={filename}")
+                message.attach(attachment)
+
+    # Connect to the SMTP server
+    with smtplib.SMTP(smtp_server, smtp_port) as server:
+        # Use TLS if required by the SMTP server
+        server.starttls()
+
+        # Log in to the email account
+        server.login(sender_email, sender_password)
+
+        # Send the email
+        server.sendmail(sender_email, to_email, message.as_string())
+
+list_keywords = ['"ΛΑΜΠ"', '"ΚΙΝΗΤΗΡ"', '"ΗΛΕΚΤΡΟΛ"', '"ΜΕΛΑΝΙ"']
+
+companies = [
+    {
+        "id": 1,
+        "name": "ledison",
+        "keywords": [list_keywords[0]],
+        "email": "gkakias94@gmail.com",
+        "cpv": ('44', '46')
+    },
+    {
+        "id": 2,
+        "name": "example_kinitires",
+        "keywords": [list_keywords[1]],
+        "email": "gkakias94@gmail.com",
+        "cpv": ('44', '46')
+    }
+]
+
+for company in companies:
+    prefix = 'https://diavgeia.gov.gr/luminapi/api/search/export?q=q:['
+    decision = '&fq=decisionType:%22%CE%A0%CE%95%CE%A1%CE%99%CE%9B%CE%97%CE%A8%CE%97%20%CE%94%CE%99%CE%91%CE%9A%CE%97%CE%A1%CE%A5%CE%9E%CE%97%CE%A3%22'
+    start_date = str(date.today()) + 'T00:00:00'
+    end_date = str(date.today() - timedelta(days=1)) + 'T00:00:00'
+    date_range = '&fq=issueDate:[DT(' + end_date + ')%20TO%20DT(' + start_date + ')]'
+    suffix = '&sort=recent&wt=json'
+    for keyword_temp in company['keywords']:
+        keyword = str(keyword_temp + ']')
+        final_url = str(prefix + keyword + decision + date_range + suffix)
+
+        response = requests.get(final_url)
+
+        if response.status_code == 200:
+            data_list = [json.loads(line) for line in response.text.strip().split('\n')]
+
+            field_values = [
+                {
+                    'ada': result.get('ada', 'N/A'),
+                    'protocolNumber': result.get('protocolNumber', 'N/A'),
+                    'issueDate': result.get('issueDate', 'N/A'),
+                    'submissionTimestamp': result.get('submissionTimestamp', 'N/A'),
+                    'documentUrl': result.get('documentUrl', 'N/A'),
+                    'subject': result.get('subject', 'N/A'),
+                    'decisionTypeUid': result.get('decisionTypeUid', 'N/A'),
+                    'decisionTypeLabel': result.get('decisionTypeLabel', 'N/A'),
+                    'organizationUid': result.get('organizationUid', 'N/A'),
+                    'organizationLabel': result.get('organizationLabel', 'N/A'),
+                }
+                for record in data_list
+                for result in record.get('decisionResultList', [])
+            ]
+
+            folder_path = os.path.join(os.getcwd(), 'diavgeia_files', company['name'], str(date.today().strftime('%Y%m%d')))
+            os.makedirs(folder_path, exist_ok=True)
+
+            for entry in field_values:
+                ada_value = entry.get('ada', 'N/A')
+                filename = os.path.join(folder_path, f"{ada_value}.pdf")
+
+                with open(filename, "wb") as pdf_file:
+                    pdf_file.write(requests.get(entry['documentUrl']).content)
+
+            print(f"File download completed successfully for company: {company['name']}")
+
+            # Example usage with multiple attachments from a folder:
+            subject = f"Προκυρήξεις διαγωνισμών για {date.today()}"
+            body = "This is a test email with multiple attachments sent"
+            to_email = company['email']
+            smtp_server = "smtp.office365.com"  # Outlook SMTP server
+            smtp_port = 587  # Port for TLS
+            sender_email = ""
+            sender_password = ""
+            attachment_folder = os.path.join(os.getcwd(), 'diavgeia_files', company['name'], str(date.today().strftime('%Y%m%d')))
+
+            send_email(subject, body, to_email, smtp_server, smtp_port, sender_email, sender_password, attachment_folder)
+        else:
+            print(company['name'])
+            print(f"Failed to fetch data. Status code: {response.status_code}")
