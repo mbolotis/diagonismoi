@@ -44,6 +44,7 @@ def delete_company(companies, company_id):
     if index_to_remove is not None:
         del companies[index_to_remove]
 
+
 def send_email(subject, body, to_email, smtp_server, smtp_port, sender_email, sender_password, attachment_folder):
     # Create the email message
     message = MIMEMultipart()
@@ -74,6 +75,7 @@ def send_email(subject, body, to_email, smtp_server, smtp_port, sender_email, se
         # Send the email
         server.sendmail(sender_email, to_email, message.as_string())
 
+
 list_keywords = ['"ΛΑΜΠ"', '"ΚΙΝΗΤΗΡ"', '"ΗΛΕΚΤΡΟΛ"', '"ΜΕΛΑΝΙ"']
 
 companies = [
@@ -93,11 +95,14 @@ companies = [
     }
 ]
 
+with open('credentials.json') as f:
+    creds = json.load(f)
+
 for company in companies:
     prefix = 'https://diavgeia.gov.gr/luminapi/api/search/export?q=q:['
     decision = '&fq=decisionType:%22%CE%A0%CE%95%CE%A1%CE%99%CE%9B%CE%97%CE%A8%CE%97%20%CE%94%CE%99%CE%91%CE%9A%CE%97%CE%A1%CE%A5%CE%9E%CE%97%CE%A3%22'
     start_date = str(date.today()) + 'T00:00:00'
-    end_date = str(date.today() - timedelta(days=1)) + 'T00:00:00'
+    end_date = str(date.today() - timedelta(days=3)) + 'T00:00:00'
     date_range = '&fq=issueDate:[DT(' + end_date + ')%20TO%20DT(' + start_date + ')]'
     suffix = '&sort=recent&wt=json'
     for keyword_temp in company['keywords']:
@@ -142,10 +147,12 @@ for company in companies:
             subject = f"Προκυρήξεις διαγωνισμών για {date.today()}"
             body = "This is a test email with multiple attachments sent"
             to_email = company['email']
-            smtp_server = "smtp.office365.com"  # Outlook SMTP server
-            smtp_port = 587  # Port for TLS
-            sender_email = ""
-            sender_password = ""
+            smtp_server = "smtp.gmail.com"  # Outlook SMTP server-- smtp.gmail.com smtp.office365.com
+            smtp_port = 587  # Port for TLS 465
+            sender_email = creds['EMAIL_ADDRESS']
+            sender_password = creds['EMAIL_PASSWORD']
+            #sender_email = "michaelbolotis@gmail.com"
+            #sender_password = "xbdp qwgf bxfw cczh"  # xbdp qwgf bxfw cczh
             attachment_folder = os.path.join(os.getcwd(), 'diavgeia_files', company['name'], str(date.today().strftime('%Y%m%d')))
 
             send_email(subject, body, to_email, smtp_server, smtp_port, sender_email, sender_password, attachment_folder)
