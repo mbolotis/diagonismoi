@@ -19,8 +19,6 @@ with sync_playwright() as p:
     page.click('text=Προσκλήσεις - Προκηρύξεις - Διακηρύξεις')
     page.wait_for_timeout(1000)  # Wait for tab content to load
 
-    print('Clicking dropdown')
-
     page.wait_for_timeout(500)
 
     # Focus and fill the input (triggers the dropdown to appear)
@@ -28,30 +26,49 @@ with sync_playwright() as p:
     page.fill('input#appForm\\:noticeProcedureType_input', '')
     page.type('input[id="appForm:noticeProcedureType_input"]', 'αν')
 
-    page.screenshot(path="after_search_click_1.png", full_page=True)
-
     # Wait briefly for the autocomplete suggestions to appear
     page.wait_for_timeout(500)
 
     #page.keyboard.press('ArrowDown')
     page.keyboard.press('Enter')
 
-    time.sleep(2)
+    page.screenshot(path="after_search_click_1.png", full_page=True)
 
-    print('Dropdown clicked')
+    time.sleep(2)
+    page.keyboard.press('Enter')
+
+################################################################################################
+################################################################################################
+
+    page.click('input#appForm\\:finalDateFrom_input')
+    page.wait_for_timeout(1000)
 
     page.screenshot(path="after_search_click_2.png", full_page=True)
 
+    page.keyboard.press('Enter')
+    page.wait_for_load_state('networkidle')  # wait until no network requests for 500ms
+
+    page.wait_for_timeout(1000)
+    time.sleep(5)
+    page.screenshot(path="after_search_click_3.png", full_page=True)
+
+    page.keyboard.press('Escape')
+    page.wait_for_timeout(1000)
+
+    page.screenshot(path="after_search_click_4.png", full_page=True)
+
     # Click the search button
-    print("Clicking search button...")
+    #print("Clicking search button...")
     #page.click('text=Αναζήτηση')
-    page.click('#appForm\\:notice_search_button')
+    #page.click('#appForm\\:notice_search_button')
     #page.locator('text=Αναζήτηση').click(force=True)
 
     page.wait_for_timeout(5000)
+    time.sleep(5)
 
-    page.screenshot(path="after_search_click_3.png", full_page=True)
-
+    #page.screenshot(path="after_search_click_3.png", full_page=True)
+    browser.close()
+'''
     # Wait for results to load
     print("Waiting for results...")
     try:
@@ -87,5 +104,5 @@ with sync_playwright() as p:
         print("No results to save.")
 
     # Close browser
-    print("Closing browser...")
-    browser.close()
+    print("Closing browser...")'''
+    #browser.close()
