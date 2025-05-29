@@ -21,10 +21,12 @@ with sync_playwright() as p:
 
     page.wait_for_timeout(500)
 
+##################   ANOIXTI DIADIKASIA OK     ########################################
+################################################################################################
     # Focus and fill the input (triggers the dropdown to appear)
     page.click('input[id="appForm:noticeProcedureType_input"]')
     page.fill('input#appForm\\:noticeProcedureType_input', '')
-    page.type('input[id="appForm:noticeProcedureType_input"]', 'αν')
+    page.type('input[id="appForm:noticeProcedureType_input"]', 'ανοι')
 
     # Wait briefly for the autocomplete suggestions to appear
     page.wait_for_timeout(500)
@@ -32,42 +34,83 @@ with sync_playwright() as p:
     #page.keyboard.press('ArrowDown')
     page.keyboard.press('Enter')
 
-    page.screenshot(path="after_search_click_1.png", full_page=True)
-
     time.sleep(2)
     page.keyboard.press('Enter')
+    time.sleep(2)
 
-################################################################################################
-################################################################################################
+    page.screenshot(path="xxxafter_search_click_1.png", full_page=True)
+
+##########################################################
+
+################    HMEROMHNIA START OK      #############################################
 
     page.click('input#appForm\\:finalDateFrom_input')
     page.wait_for_timeout(1000)
+    #ddate = "2025-05-29"
+    #page.fill("ui-datepicker-div",ddate)
 
-    page.screenshot(path="after_search_click_2.png", full_page=True)
-
+    time.sleep(2)
     page.keyboard.press('Enter')
-    page.wait_for_load_state('networkidle')  # wait until no network requests for 500ms
+    time.sleep(2)
+
+    page.screenshot(path="xxxafter_search_click_2.png", full_page=True)
 
     page.wait_for_timeout(1000)
     time.sleep(5)
-    page.screenshot(path="after_search_click_3.png", full_page=True)
+    page.screenshot(path="xxxafter_search_click_3.png", full_page=True)
 
     page.keyboard.press('Escape')
     page.wait_for_timeout(1000)
 
-    page.screenshot(path="after_search_click_4.png", full_page=True)
-
-    # Click the search button
-    #print("Clicking search button...")
-    #page.click('text=Αναζήτηση')
-    #page.click('#appForm\\:notice_search_button')
-    #page.locator('text=Αναζήτηση').click(force=True)
 
     page.wait_for_timeout(5000)
+    time.sleep(3)
+
+#############################################################
+
+##########  CPV OK   ##################################
+
+    page.click('input[id="appForm:noticecpvCodeMain_input"]')
+    page.fill('input#appForm\\:noticecpvCodeMain_input', '')
+    page.type('input[id="appForm:noticecpvCodeMain_input"]', '15810000-9')
+
+    # Wait briefly for the autocomplete suggestions to appear
+    page.wait_for_timeout(500)
+
+    time.sleep(2)
+    page.keyboard.press('Enter')
+    time.sleep(2)
+    #page.keyboard.press('Enter')
+
+    page.screenshot(path="xxxafter_search_click_4.png", full_page=True)
+
+    page.fill('input#appForm\\:noticecpvCodeMain_input', '')
+    page.type('input[id="appForm:noticecpvCodeMain_input"]', '15612120-8')
+
+    # Wait briefly for the autocomplete suggestions to appear
+    page.wait_for_timeout(500)
+
+    time.sleep(2)
+    page.keyboard.press('Enter')
+    time.sleep(2)
+
+    page.screenshot(path="xxxafter_search_click_5.png", full_page=True)
+
+#############################################################
+
+##########START SEARCHING###############################
+    #Click the search button
+    print("Clicking search button...")
+    #page.click('text=Αναζήτηση')
+    page.click('#appForm\\:notice_search_button')
+    #page.locator('text=Αναζήτηση').click(force=True)
+
     time.sleep(5)
 
-    #page.screenshot(path="after_search_click_3.png", full_page=True)
+    page.screenshot(path="after_search_click_6.png", full_page=True)
+
     browser.close()
+
 '''
     # Wait for results to load
     print("Waiting for results...")
