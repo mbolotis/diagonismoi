@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Submit Your Details</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f8f9fa;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      background: #fff;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      max-width: 500px;
+      width: 100%;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+
+    input {
+      width: 100%;
+      padding: 0.75rem;
+      margin-bottom: 1.25rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 1rem;
+    }
+
+    button {
+      width: 100%;
+      padding: 0.75rem;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .message {
+      margin-top: 1rem;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    .success {
+      color: green;
+    }
+
+    .error {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Submit Your Information</h2>
+    <form id="myForm">
+      <label for="name">Name</label>
+      <input type="text" id="name" name="NAME" required />
+
+      <label for="telephone">Telephone</label>
+      <input type="tel" id="telephone" name="TELEPHONE" required />
+
+      <label for="email">Email</label>
+      <input type="email" id="email" name="EMAIL" required />
+
+      <label for="cpv">CPV Code</label>
+      <input type="text" id="cpv" name="CPV" />
+
+      <button type="submit">Submit</button>
+    </form>
+    <div id="message" class="message"></div>
+  </div>
+
+  <script>
+    const form = document.getElementById('myForm');
+    const message = document.getElementById('message');
+
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      const data = {
+        NAME: form.name.value,
+        TELEPHONE: form.telephone.value,
+        EMAIL: form.email.value,
+        CPV: form.cpv.value
+      };
+
+      try {
+        const response = await fetch("https://script.google.com/macros/s/AKfycbyjP-3oFh2nYEOq1dyST51SGhIVAFdfLkzly2e6nMHET-sgdXGHN9BbLvRzn3FGhqFI7g/exec", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data)
+        });
+
+        const resultText = await response.text();
+        if (resultText.includes("success")) {
+          message.textContent = "✔️ Submitted successfully!";
+          message.className = "message success";
+          form.reset();
+        } else {
+          message.textContent = "❌ Submission failed.";
+          message.className = "message error";
+        }
+      } catch (error) {
+        message.textContent = "❌ Network error. Please try again.";
+        message.className = "message error";
+        console.error(error);
+      }
+    });
+  </script>
+</body>
+</html>

@@ -74,30 +74,31 @@ with sync_playwright() as p:
 
 ##########  CPV OK   ##################################
 
-
+    cpv_codes = ['15810000-9', '15612120-8']
     page.click('input[id="appForm:noticecpvCodeMain_input"]')
-    page.fill('input#appForm\\:noticecpvCodeMain_input', '')
-    page.type('input[id="appForm:noticecpvCodeMain_input"]', '15810000-9')
 
-    # Wait briefly for the autocomplete suggestions to appear
-    page.wait_for_timeout(500)
+    for cpv in cpv_codes:
 
-    time.sleep(2)
-    page.keyboard.press('Enter')
-    time.sleep(2)
-    #page.keyboard.press('Enter')
+        page.fill('input#appForm\\:noticecpvCodeMain_input', '')
+        page.type('input[id="appForm:noticecpvCodeMain_input"]', cpv)
 
-    page.screenshot(path="xxxafter_search_click_4.png", full_page=True)
+        # Wait briefly for the autocomplete suggestions to appear
+        page.wait_for_timeout(500)
 
-    page.fill('input#appForm\\:noticecpvCodeMain_input', '')
-    page.type('input[id="appForm:noticecpvCodeMain_input"]', '15612120-8')
+        time.sleep(2)
+        page.keyboard.press('Enter')
+        time.sleep(2)
+        #page.keyboard.press('Enter')
 
-    # Wait briefly for the autocomplete suggestions to appear
-    page.wait_for_timeout(500)
+        page.fill('input#appForm\\:noticecpvCodeMain_input', '')
+        page.type('input[id="appForm:noticecpvCodeMain_input"]', cpv)
 
-    time.sleep(2)
-    page.keyboard.press('Enter')
-    time.sleep(2)
+        # Wait briefly for the autocomplete suggestions to appear
+        page.wait_for_timeout(500)
+
+        time.sleep(2)
+        page.keyboard.press('Enter')
+        time.sleep(2)
 
     page.screenshot(path="xxxafter_search_click_5.png", full_page=True)
 
