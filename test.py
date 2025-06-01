@@ -74,6 +74,7 @@ with sync_playwright() as p:
 
 ##########  CPV OK   ##################################
 
+
     page.click('input[id="appForm:noticecpvCodeMain_input"]')
     page.fill('input#appForm\\:noticecpvCodeMain_input', '')
     page.type('input[id="appForm:noticecpvCodeMain_input"]', '15810000-9')
