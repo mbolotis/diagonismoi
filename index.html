@@ -40,13 +40,19 @@
     button:hover {
       background-color: #0056b3;
     }
+    .message {
+      margin-top: 1rem;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
 
   <h2>Submit Your Details</h2>
-
+  
+  <!-- CORS-safe form using action and GET method -->
   <form 
+    id="myForm"
     action="https://script.google.com/macros/s/AKfycbyjP-3oFh2nYEOq1dyST51SGhIVAFdfLkzly2e6nMHET-sgdXGHN9BbLvRzn3FGhqFI7g/exec" 
     method="GET" 
     target="_blank"
@@ -65,6 +71,8 @@
 
     <button type="submit">Submit</button>
   </form>
+
+  <div class="message" id="message"></div>
 
 </body>
 </html>
